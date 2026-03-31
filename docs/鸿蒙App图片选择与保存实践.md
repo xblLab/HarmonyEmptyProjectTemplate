@@ -141,4 +141,5 @@ private async savePixelMapToAlbum(ctx: common.UIAbilityContext, pm: image.PixelM
 
 ## 6. 权限与文档
 
-相册访问策略、所需权限随 **API 版本** 与使用方式（系统图库返回 URI、`createAsset` 安全控件等）而异。实现前请查阅 **HarmonyOS 官方文档** 中 **MediaLibraryKit**、**SaveButton / 安全控件** 及当前 Target SDK 下的 **授权说明**，按需配置 `module.json5` 等声明。
+- 相册访问策略、所需权限随 **API 版本** 与使用方式（系统图库返回 URI、`createAsset` 安全控件等）而异。实现前请查阅 **HarmonyOS 官方文档** 中 **MediaLibraryKit**、**SaveButton / 安全控件** 及当前 Target SDK 下的 **授权说明**，按需配置 `module.json5` 等声明。
+- 以上实现不需要申请这些权限： `ohos.permission.WRITE_IMAGEVIDEO`、`ohos.permission.READ_IMAGEVIDEO`
