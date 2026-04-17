@@ -28,6 +28,22 @@ export default class EntryAbility extends UIAbility {
         return;
       }
       hilog.info(DOMAIN, 'testTag', 'Succeeded in loading the content.');
+      this.applyImmersiveSystemBars(windowStage);
+    });
+  }
+
+  /** 全屏布局 + 透明状态栏/导航栏，内容延伸至系统栏区域 */
+  private applyImmersiveSystemBars(windowStage: window.WindowStage): void {
+    windowStage.getMainWindow().then((mainWindow: window.Window) => {
+      mainWindow.setWindowLayoutFullScreen(true);
+      mainWindow.setWindowSystemBarProperties({
+        statusBarColor: '#00000000',
+        navigationBarColor: '#00000000',
+        statusBarContentColor: '#FF000000',
+        navigationBarContentColor: '#FF000000',
+      });
+    }).catch((e: Error) => {
+      hilog.error(DOMAIN, 'testTag', 'applyImmersiveSystemBars failed: %{public}s', JSON.stringify(e));
     });
   }
 
