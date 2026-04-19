@@ -9,6 +9,11 @@
       "name": "SimpleAboutPage",
       "pageSourceFile": "src/main/ets/pages/secondary/SimpleAboutPage.ets",
       "buildFunction": "SimpleAboutPageBuilder"
+    },
+    {
+      "name": "SampleTaskEditPage",
+      "pageSourceFile": "src/main/ets/pages/secondary/SampleTaskEditPage.ets",
+      "buildFunction": "SampleTaskEditPageBuilder"
     }
   ]
 }

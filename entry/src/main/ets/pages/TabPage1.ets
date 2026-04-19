@@ -1,12 +1,23 @@
 import { HdsNavDestination, HdsNavDestinationAttribute, ScrollEffectType } from '@kit.UIDesignKit';
 import { LengthMetrics } from '@kit.ArkUI';
 import { NAVIGATION_TITLE_BAR_HEIGHT } from '../config/Constants';
+import { SampleTaskRepository } from '../model/SampleTaskRepository';
 import { SimpleDetailParams } from './secondary/SimpleDetailPage';
 
 @Component
 export struct TabPage1 {
   scroller: Scroller = new Scroller();
   @Consume('pageInfos') pageInfos: NavPathStack = new NavPathStack();
+  @StorageLink('sample_task_version') taskVersion: number = 0;
+
+  private async appendCrossTabTask(): Promise<void> {
+    const repo: SampleTaskRepository = SampleTaskRepository.instance();
+    if (!repo.isReady()) {
+      await repo.init();
+    }
+    await repo.appendTab1Task(this.taskVersion);
+    this.taskVersion += 1;
+  }
 
   @Builder
   private buildContentView() {
@@ -94,6 +105,36 @@ export struct TabPage1 {
       .padding(14)
       .borderRadius(8)
       .backgroundColor($r('sys.color.background_primary'))
+
+      Row({ space: 12 }) {
+        SymbolGlyph($r('sys.symbol.arrow_2_circlepath'))
+          .fontSize(26)
+          .fontColor([$r('sys.color.brand')])
+
+        Column({ space: 6 }) {
+          Text('跨页面数据同步')
+            .fontSize(17)
+            .fontWeight(FontWeight.Medium)
+            .fontColor($r('sys.color.font_primary'))
+
+          Text(`当前同步版本 ${this.taskVersion}。点击后写入 repository，Tab3 通过版本信号自动重载列表。`)
+            .fontSize(14)
+            .fontColor($r('sys.color.font_secondary'))
+            .lineHeight(20)
+        }
+        .layoutWeight(1)
+        .alignItems(HorizontalAlign.Start)
+      }
+      .width('100%')
+      .padding(14)
+      .borderRadius(8)
+      .backgroundColor($r('sys.color.background_primary'))
+
+      Button('Tab1 写入数据，同步到 Tab3')
+        .width('100%')
+        .onClick(() => {
+          void this.appendCrossTabTask();
+        })
 
       Button('示例详情页（带参数）')
         .width('100%')

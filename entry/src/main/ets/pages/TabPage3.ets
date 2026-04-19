@@ -1,37 +1,57 @@
 import { HdsNavDestination, HdsNavDestinationAttribute, ScrollEffectType } from '@kit.UIDesignKit';
 import { LengthMetrics } from '@kit.ArkUI';
 import { NAVIGATION_TITLE_BAR_HEIGHT } from '../config/Constants';
-
-interface SampleTask {
-  id: number;
-  title: string;
-  owner: string;
-  done: boolean;
-  updatedAt: number;
-}
+import { SampleTask, SampleTaskRepository } from '../model/SampleTaskRepository';
+import { SampleTaskEditParams } from './secondary/SampleTaskEditPage';
 
 @Component
 export struct TabPage3 {
   scroller: Scroller = new Scroller();
-  @State private tasks: SampleTask[] = [
-    { id: 1, title: '根 Column 统一 padding', owner: '布局', done: true, updatedAt: 1 },
-    { id: 2, title: 'Scroll 使用 Spring 回弹', owner: '滚动', done: true, updatedAt: 1 },
-    { id: 3, title: 'ForEach key 拼接 updatedAt', owner: '刷新', done: false, updatedAt: 1 },
-    { id: 4, title: '图标来自 symbolname', owner: '图标', done: false, updatedAt: 1 }
-  ];
+  private reloadToken: number = 0;
 
-  private toggleTask(targetId: number): void {
-    this.tasks = this.tasks.map((task: SampleTask) => {
-      if (task.id !== targetId) {
-        return task;
-      }
-      return {
-        id: task.id,
-        title: task.title,
-        owner: task.owner,
-        done: !task.done,
-        updatedAt: task.updatedAt + 1
-      };
+  @Consume('pageInfos') pageInfos: NavPathStack = new NavPathStack();
+  @StorageLink('sample_task_version') @Watch('onTaskVersionChanged') taskVersion: number = 0;
+  @State private tasks: SampleTask[] = [];
+
+  aboutToAppear(): void {
+    void this.loadTasks();
+  }
+
+  private onTaskVersionChanged(): void {
+    void this.loadTasks();
+  }
+
+  private async ensureRepo(): Promise<SampleTaskRepository> {
+    const repo: SampleTaskRepository = SampleTaskRepository.instance();
+    if (!repo.isReady()) {
+      await repo.init();
+    }
+    return repo;
+  }
+
+  private async loadTasks(): Promise<void> {
+    const token: number = ++this.reloadToken;
+    const repo: SampleTaskRepository = await this.ensureRepo();
+    const tasks: SampleTask[] = await repo.queryTasks();
+    if (token !== this.reloadToken) {
+      return;
+    }
+    this.tasks = tasks;
+  }
+
+  private async toggleTask(targetId: number): Promise<void> {
+    const repo: SampleTaskRepository = await this.ensureRepo();
+    await repo.toggleTask(targetId);
+    this.taskVersion += 1;
+  }
+
+  private openEditPage(taskId: number): void {
+    const params: SampleTaskEditParams = {
+      taskId: taskId
+    };
+    this.pageInfos.pushPath({
+      name: 'SampleTaskEditPage',
+      param: params
     });
   }
 
@@ -49,6 +69,18 @@ export struct TabPage3 {
         .fontColor($r('sys.color.font_secondary'))
         .lineHeight(24)
         .width('100%')
+
+      Text(`同步版本 ${this.taskVersion}。Tab1 写入、新增页保存、编辑页保存、列表内切换完成状态都会更新这个版本。`)
+        .fontSize(14)
+        .fontColor($r('sys.color.font_tertiary'))
+        .lineHeight(20)
+        .width('100%')
+
+      Button('进入新增页面')
+        .width('100%')
+        .onClick(() => {
+          this.openEditPage(0);
+        })
 
       ForEach(this.tasks, (task: SampleTask) => {
         Row({ space: 12 }) {
@@ -72,7 +104,14 @@ export struct TabPage3 {
             .fontSize(14)
             .height(36)
             .onClick(() => {
-              this.toggleTask(task.id);
+              void this.toggleTask(task.id);
+            })
+
+          Button('编辑')
+            .fontSize(14)
+            .height(36)
+            .onClick(() => {
+              this.openEditPage(task.id);
             })
         }
         .width('100%')
