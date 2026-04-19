@@ -1,5 +1,5 @@
 import { HdsNavDestination, HdsNavDestinationAttribute, ScrollEffectType } from '@kit.UIDesignKit';
-import { curves, LengthMetrics } from '@kit.ArkUI';
+import { LengthMetrics } from '@kit.ArkUI';
 import { NAVIGATION_TITLE_BAR_HEIGHT } from '../config/Constants';
 import { SimpleDetailParams } from './secondary/SimpleDetailPage';
 
@@ -11,16 +11,96 @@ export struct TabPage1 {
   @Builder
   private buildContentView() {
     Column({ space: 16 }) {
-      Text('Tab 1：点击下方进入二级页')
+      Text('开发规范示例')
+        .fontSize(28)
+        .fontWeight(FontWeight.Bold)
+        .fontColor($r('sys.color.font_primary'))
+        .width('100%')
+
+      Text('这些页面展示模板推荐的页面结构、系统图标、滚动配置、状态加载与列表刷新写法。')
         .fontSize(16)
         .fontColor($r('sys.color.font_secondary'))
+        .lineHeight(24)
+        .width('100%')
+
+      Row({ space: 12 }) {
+        SymbolGlyph($r('sys.symbol.checkmark_circle_fill'))
+          .fontSize(26)
+          .fontColor([$r('sys.color.brand')])
+
+        Column({ space: 4 }) {
+          Text('Scroll 默认配置')
+            .fontSize(17)
+            .fontWeight(FontWeight.Medium)
+            .fontColor($r('sys.color.font_primary'))
+
+          Text('隐藏滚动条，开启 Spring 回弹，内容从 TopStart 对齐。')
+            .fontSize(14)
+            .fontColor($r('sys.color.font_secondary'))
+            .lineHeight(20)
+        }
+        .layoutWeight(1)
+        .alignItems(HorizontalAlign.Start)
+      }
+      .width('100%')
+      .padding(14)
+      .borderRadius(8)
+      .backgroundColor($r('sys.color.background_primary'))
+
+      Row({ space: 12 }) {
+        SymbolGlyph($r('sys.symbol.moon_circle_fill'))
+          .fontSize(26)
+          .fontColor([$r('sys.color.brand')])
+
+        Column({ space: 4 }) {
+          Text('深色模式适配')
+            .fontSize(17)
+            .fontWeight(FontWeight.Medium)
+            .fontColor($r('sys.color.font_primary'))
+
+          Text('页面使用系统语义色，不给状态栏和背景写死单一颜色。')
+            .fontSize(14)
+            .fontColor($r('sys.color.font_secondary'))
+            .lineHeight(20)
+        }
+        .layoutWeight(1)
+        .alignItems(HorizontalAlign.Start)
+      }
+      .width('100%')
+      .padding(14)
+      .borderRadius(8)
+      .backgroundColor($r('sys.color.background_primary'))
+
+      Row({ space: 12 }) {
+        SymbolGlyph($r('sys.symbol.square_grid_2x2'))
+          .fontSize(26)
+          .fontColor([$r('sys.color.brand')])
+
+        Column({ space: 4 }) {
+          Text('统一布局边距')
+            .fontSize(17)
+            .fontWeight(FontWeight.Medium)
+            .fontColor($r('sys.color.font_primary'))
+
+          Text('根 Column 统一控制左右边距，内部模块只处理自身间距。')
+            .fontSize(14)
+            .fontColor($r('sys.color.font_secondary'))
+            .lineHeight(20)
+        }
+        .layoutWeight(1)
+        .alignItems(HorizontalAlign.Start)
+      }
+      .width('100%')
+      .padding(14)
+      .borderRadius(8)
+      .backgroundColor($r('sys.color.background_primary'))
 
       Button('示例详情页（带参数）')
         .width('100%')
         .onClick(() => {
           const param: SimpleDetailParams = {
-            title: '示例详情',
-            body: '这里是由一级页传入的说明文字。可在 route_map.json 中注册更多二级页，并用 pageInfos.pushPath 跳转。'
+            title: '路由参数示例',
+            body: '一级页通过 NavPathStack.pushPath 传入参数，二级页在 onReady 中读取参数并落到 @State，再由 UI 直接绑定状态显示。'
           };
           this.pageInfos.pushPath({ name: 'SimpleDetailPage', param: param });
         })
@@ -31,9 +111,9 @@ export struct TabPage1 {
           this.pageInfos.pushPath({ name: 'SimpleAboutPage' });
         })
     }
-    .padding({ top: NAVIGATION_TITLE_BAR_HEIGHT, left: 16, right: 16 })
+    .padding({ top: NAVIGATION_TITLE_BAR_HEIGHT, left: 16, right: 16, bottom: 24 })
     .width('100%')
-    .height('100%')
+    .alignItems(HorizontalAlign.Start)
   }
 
   build() {
@@ -41,7 +121,7 @@ export struct TabPage1 {
       Scroll(this.scroller) {
         this.buildContentView()
       }
-      .align(Alignment.Top)
+      .align(Alignment.TopStart)
       .scrollable(ScrollDirection.Vertical)
       .scrollBar(BarState.Off)
       .edgeEffect(EdgeEffect.Spring)
@@ -60,7 +140,7 @@ export struct TabPage1 {
       },
       content: {
         title: {
-          mainTitle: 'tab 1'
+          mainTitle: '规范'
         }
       }
     })

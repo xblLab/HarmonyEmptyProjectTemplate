@@ -54,25 +54,25 @@ struct Index {
         TabContent() {
           TabPage1()
         }
-        .tabBar(this.tabBuilder('tab 1', 0, $r('sys.symbol.square_grid_2x2')))
+        .tabBar(this.tabBuilder('规范', 0, $r('sys.symbol.square_grid_2x2')))
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
 
         TabContent() {
           TabPage2()
         }
-        .tabBar(this.tabBuilder('tab 2', 1, $r('sys.symbol.circle_grid_2x2')))
+        .tabBar(this.tabBuilder('状态', 1, $r('sys.symbol.arrow_2_circlepath')))
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
 
         TabContent() {
           TabPage3()
         }
-        .tabBar(this.tabBuilder('tab 3', 2, $r('sys.symbol.ranking_fill')))
+        .tabBar(this.tabBuilder('列表', 2, $r('sys.symbol.star_badge_list')))
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
 
         TabContent() {
           TabPage4()
         }
-        .tabBar(this.tabBuilder('tab 4', 3, $r('sys.symbol.person_crop_circle_fill_1')))
+        .tabBar(this.tabBuilder('布局', 3, $r('sys.symbol.doc_plaintext_fill_1')))
         .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
       }
       .width('100%')

@@ -10,9 +10,8 @@ alwaysApply: true
 2. [icon 使用规则](#2-icon-使用规则)
 3. [深色模式适配](#3-深色模式适配)
 4. [Scroll 规则](#4-scroll-规则)
-5. [TabBar最佳实践](#5-TabBar最佳实践)
-6. [数据同步与重渲染实现规范](#6-数据同步与重渲染实现规范)
-7. [页面布局规范](#7-页面布局规范)
+5. [数据同步与重渲染实现规范](#6-数据同步与重渲染实现规范)
+6. [页面布局规范](#7-页面布局规范)
 
 ## 1. 编译
 
@@ -41,75 +40,6 @@ Scroll() {
 .scrollBar(BarState.Off)
 .edgeEffect(EdgeEffect.Spring)
 .align(Alignment.TopStart)
-```
-
-## 5. TabBar最佳实践
-
-用 `Tabs` + `TabContent` + 自定义 `.tabBar()`，与页面根布局的安全区、主题色一致。
-
-### 5.1 状态与 Tabs 骨架
-
-- 使用 `@State currentTab: number` 记录当前页签索引，与 `Tabs({ barPosition: BarPosition.End, index: this.currentTab })` 绑定，底部栏用 `BarPosition.End`。
-- 每个页签：`TabContent() { /* 子页面 */ }.tabBar(this.TabItem(...))`。
-- Tabs 链式配置建议：
-  - `.vertical(false)`：横向页签内容区与底栏。
-  - `.barMode(BarMode.Fixed)`：固定底栏，避免滚动时栏位抖动。
-  - `.barWidth('100%')`：底栏铺满宽度。
-  - `.animationDuration(200)`：切换动画时长适中即可。
-  - `.onChange((idx: number) => { this.currentTab = idx; })`：与 `index` 双向一致。
-  - `.layoutWeight(1)`：在根 `Column` 内占满除安全区外的剩余高度。
-  - `.barBackgroundColor($r('app.color.page_background'))`：与页面背景同色，避免底栏与内容区色差。
-
-### 5.2 自定义 TabItem（图标 + 文案）
-
-- 使用 `@Builder TabItem(label: Resource, icon: Resource, idx: number)`，**图标用 `SymbolGlyph`**，不要用字符或 emoji 代替（与第 2 节一致）。
-- 选中态 / 未选中态用资源色区分，例如：`this.currentTab === idx ? $r('app.color.text_primary') : $r('app.color.text_tertiary')`，保证深色模式走同一套 token。
-- 文案用 `$r('app.string.xxx')`，图标用 `$r('sys.symbol.xxx')` 等系统 Symbol 资源。
-- Tab 项容器建议固定高度（如 `height(48)`）、`.justifyContent(FlexAlign.Center)`，图标与文字间距用 `margin` 微调；需要与全局排版一致时，可为 `Text` 设置 `fontFamily`、`letterSpacing` 等（见项目内 `DesignTokens`）。
-
-### 5.3 根布局与安全区
-
-- 根节点用 `Column().width('100%').height('100%').backgroundColor($r('app.color.page_background'))`。
-- 顶/底内边距结合系统避让区：通过 `window.getLastWindow(ctx)` 取 `getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM)`，将 `topRect` / `bottomRect` 高度从 px 转为 vp 后赋给 `@State padTop`、`padBottom`；在 `aboutToAppear` 与 `onPageShow` 中刷新，避免旋转或窗口变化后留白不准。
-- 底部在避让高度基础上可再加少量 vp（如 `+ 12`）作为与底栏的视觉间距，按设计调整。
-
-### 5.4 示例片段（结构与 TabItem）
-
-```ts
-@State private currentTab: number = 0;
-
-Tabs({ barPosition: BarPosition.End, index: this.currentTab }) {
-  TabContent() {
-    SomePage()
-  }
-  .tabBar(this.TabItem($r('app.string.tab_xxx'), $r('sys.symbol.xxx'), 0))
-  // ... 更多 TabContent
-}
-.vertical(false)
-.barMode(BarMode.Fixed)
-.barWidth('100%')
-.animationDuration(200)
-.onChange((idx: number) => {
-  this.currentTab = idx;
-})
-.layoutWeight(1)
-.barBackgroundColor($r('app.color.page_background'))
-
-@Builder
-TabItem(label: Resource, icon: Resource, idx: number) {
-  Column() {
-    SymbolGlyph(icon)
-      .fontSize(22)
-      .fontColor([this.currentTab === idx ? $r('app.color.text_primary') : $r('app.color.text_tertiary')])
-    Text(label)
-      .fontSize(12)
-      .fontColor(this.currentTab === idx ? $r('app.color.text_primary') : $r('app.color.text_tertiary'))
-      .margin({ top: 4 })
-  }
-  .width('100%')
-  .height(48)
-  .justifyContent(FlexAlign.Center)
-}
 ```
 
 ## 6. 数据同步与重渲染实现规范
