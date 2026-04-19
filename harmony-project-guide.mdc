@@ -1,0 +1,374 @@
+---
+alwaysApply: true
+---
+
+# 鸿蒙开发最佳实践
+
+目录
+
+1. [编译](#1-编译)
+2. [icon 使用规则](#2-icon-使用规则)
+3. [深色模式适配](#3-深色模式适配)
+4. [Scroll 规则](#4-scroll-规则)
+5. [TabBar最佳实践](#5-TabBar最佳实践)
+6. [数据同步与重渲染实现规范](#6-数据同步与重渲染实现规范)
+7. [页面布局规范](#7-页面布局规范)
+
+## 1. 编译
+
+每次agent修改完代码，都需要执行编译命令：`hvigorw assembleHap`。如果有编译错误，继续修复编译错问题，直到没有。
+
+## 2. icon 使用规则
+
+1. 实现 UI 过程中，如果需要用到 icon，使用 `symbolname.cursorrules` 文件中的 icon
+2. **严禁**通过字符或者 emoji 代替 icon，除非用户明确要求
+
+## 3. 深色模式适配
+
+1. 实现 UI 过程中，一定要考虑深色模式适配，确保在深色模式下，UI 元素的显示效果和用户交互体验都是最佳的。
+2. 系统状态栏颜色不能设置成固定颜色，需要根据系统深色/浅色模式自动适配。
+
+## 4. Scroll 规则
+
+Scroll 默认要开启回弹效果，align 模式默认为 topStart，隐藏 scroll bar
+
+示例代码：
+
+```ts
+Scroll() {
+  // scroll content
+}
+.scrollBar(BarState.Off)
+.edgeEffect(EdgeEffect.Spring)
+.align(Alignment.TopStart)
+```
+
+## 5. TabBar最佳实践
+
+用 `Tabs` + `TabContent` + 自定义 `.tabBar()`，与页面根布局的安全区、主题色一致。
+
+### 5.1 状态与 Tabs 骨架
+
+- 使用 `@State currentTab: number` 记录当前页签索引，与 `Tabs({ barPosition: BarPosition.End, index: this.currentTab })` 绑定，底部栏用 `BarPosition.End`。
+- 每个页签：`TabContent() { /* 子页面 */ }.tabBar(this.TabItem(...))`。
+- Tabs 链式配置建议：
+  - `.vertical(false)`：横向页签内容区与底栏。
+  - `.barMode(BarMode.Fixed)`：固定底栏，避免滚动时栏位抖动。
+  - `.barWidth('100%')`：底栏铺满宽度。
+  - `.animationDuration(200)`：切换动画时长适中即可。
+  - `.onChange((idx: number) => { this.currentTab = idx; })`：与 `index` 双向一致。
+  - `.layoutWeight(1)`：在根 `Column` 内占满除安全区外的剩余高度。
+  - `.barBackgroundColor($r('app.color.page_background'))`：与页面背景同色，避免底栏与内容区色差。
+
+### 5.2 自定义 TabItem（图标 + 文案）
+
+- 使用 `@Builder TabItem(label: Resource, icon: Resource, idx: number)`，**图标用 `SymbolGlyph`**，不要用字符或 emoji 代替（与第 2 节一致）。
+- 选中态 / 未选中态用资源色区分，例如：`this.currentTab === idx ? $r('app.color.text_primary') : $r('app.color.text_tertiary')`，保证深色模式走同一套 token。
+- 文案用 `$r('app.string.xxx')`，图标用 `$r('sys.symbol.xxx')` 等系统 Symbol 资源。
+- Tab 项容器建议固定高度（如 `height(48)`）、`.justifyContent(FlexAlign.Center)`，图标与文字间距用 `margin` 微调；需要与全局排版一致时，可为 `Text` 设置 `fontFamily`、`letterSpacing` 等（见项目内 `DesignTokens`）。
+
+### 5.3 根布局与安全区
+
+- 根节点用 `Column().width('100%').height('100%').backgroundColor($r('app.color.page_background'))`。
+- 顶/底内边距结合系统避让区：通过 `window.getLastWindow(ctx)` 取 `getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM)`，将 `topRect` / `bottomRect` 高度从 px 转为 vp 后赋给 `@State padTop`、`padBottom`；在 `aboutToAppear` 与 `onPageShow` 中刷新，避免旋转或窗口变化后留白不准。
+- 底部在避让高度基础上可再加少量 vp（如 `+ 12`）作为与底栏的视觉间距，按设计调整。
+
+### 5.4 示例片段（结构与 TabItem）
+
+```ts
+@State private currentTab: number = 0;
+
+Tabs({ barPosition: BarPosition.End, index: this.currentTab }) {
+  TabContent() {
+    SomePage()
+  }
+  .tabBar(this.TabItem($r('app.string.tab_xxx'), $r('sys.symbol.xxx'), 0))
+  // ... 更多 TabContent
+}
+.vertical(false)
+.barMode(BarMode.Fixed)
+.barWidth('100%')
+.animationDuration(200)
+.onChange((idx: number) => {
+  this.currentTab = idx;
+})
+.layoutWeight(1)
+.barBackgroundColor($r('app.color.page_background'))
+
+@Builder
+TabItem(label: Resource, icon: Resource, idx: number) {
+  Column() {
+    SymbolGlyph(icon)
+      .fontSize(22)
+      .fontColor([this.currentTab === idx ? $r('app.color.text_primary') : $r('app.color.text_tertiary')])
+    Text(label)
+      .fontSize(12)
+      .fontColor(this.currentTab === idx ? $r('app.color.text_primary') : $r('app.color.text_tertiary'))
+      .margin({ top: 4 })
+  }
+  .width('100%')
+  .height(48)
+  .justifyContent(FlexAlign.Center)
+}
+```
+
+## 6. 数据同步与重渲染实现规范
+
+鸿蒙页面里，**数据同步正确** 和 **界面自动重渲染** 要一起设计，不能把“查数据”“存状态”“画 UI”混在一起临时拼。正确做法是：**repository 提供稳定数据，页面只维护响应式状态，UI 直接绑定这些响应式状态**。
+
+### 6.1 页面状态设计
+
+- repository / store 负责“读写真实数据”，不要在 UI 组件里散落查询细节。
+- 页面组件负责维护用于展示的 `@State`。
+- 跨页面同步信号用 `@StorageLink` / `@Link`，但真正展示的数据仍要落到当前页面自己的 `@State` 上。
+- 一个展示字段只保留一个最终状态来源，例如：
+  - `focusSec`
+  - `tomatoCount`
+  - `breakCount`
+  - `stretchDone`
+
+推荐模式：
+
+```ts
+@StorageLink('stats_data_version') @Watch('onDataVersionChanged') dataVersion: number = 0;
+@State private focusSec: number = 0;
+@State private tomatoCount: number = 0;
+```
+
+### 6.2 单一数据入口
+
+同一个页面的展示数据，要收敛到一个统一的加载方法，例如 `loadOverview()` / `loadDetail()`，不要在多个生命周期里各写一套查询和赋值逻辑。
+
+推荐模式：
+
+```ts
+aboutToAppear(): void {
+  void this.loadOverview();
+}
+
+private onDataVersionChanged(): void {
+  void this.loadOverview();
+}
+
+private async loadOverview(): Promise<void> {
+  const repo = await this.ensureRepo();
+  const summary = await repo.queryDayStat(new Date());
+  this.focusSec = summary.focusSec;
+  this.tomatoCount = summary.tomatoCount;
+}
+```
+
+要求：
+- 生命周期只负责“触发加载”
+- 数据转换和状态赋值只放在统一入口里
+- 不要在 `build()` 里直接查 repository
+
+### 6.3 UI 直接绑定 `@State`
+
+UI 层必须尽量直接读取当前页面的 `@State`，这样状态变化时，ArkUI 才更稳定地触发重渲染。
+
+推荐写法：
+
+```ts
+Column() {
+  Text($r('app.string.today_focus_time'))
+  Text(`${formatMinPart(this.focusSec)} 分`)
+}
+```
+
+谨慎写法：
+
+```ts
+this.StatCard($r('app.string.today_focus_time'), `${formatMinPart(this.focusSec)} 分`);
+```
+
+原因：
+- 先把状态格式化成普通参数，再透传给 `@Builder` / 子结构，刷新链路会变长
+- 页面结构复杂、存在多次异步刷新时，更容易出现“状态已更新但局部 UI 没按预期刷新”
+
+实践建议：
+- **优先让页面直接读 `@State`**
+- 如果必须拆 `@Builder`，优先让 Builder 内直接读取当前组件状态
+- 少传“已经计算好的普通字符串”，多传响应式来源
+
+### 6.3.1 经典刷新问题：局部参数更新了，顶部卡片没更新
+
+这是鸿蒙页面里很常见的一类问题：
+- 用户切换模式、轮数、筛选项后，下面参数区更新了
+- 顶部摘要卡片、统计卡片、标题副标题却还停留在旧值
+
+高风险写法：
+
+```ts
+this.HeroMetric(
+  $r('app.string.estimate_duration'),
+  formatMinutesPart(this.estimateTotalSec()),
+  durationUsesSecondsUnit(this.estimateTotalSec()) ? $r('app.string.unit_seconds') : $r('app.string.unit_minutes')
+);
+```
+
+问题不在于计算函数本身，而在于：
+- 先把 `@State` 派生值格式化成普通 `string` / `Resource`
+- 再透传给 `@Builder` 或局部子结构
+- 复杂页面下，ArkUI 可能复用局部结构，导致“外层状态变了，但这块 UI 没按预期重新取值”
+
+更稳妥的写法：
+
+```ts
+Column() {
+  Text($r('app.string.estimate_duration'))
+  Row() {
+    Text(formatMinutesPart(estimateTotalSeconds(this.selectedMode, this.rounds)))
+    Text(
+      durationUsesSecondsUnit(estimateTotalSeconds(this.selectedMode, this.rounds)) ?
+        $r('app.string.unit_seconds') : $r('app.string.unit_minutes')
+    )
+  }
+}
+```
+
+原则：
+- 顶部摘要区、统计卡片、标题区这类“最容易被复用的局部 UI”，尽量直接读取当前页面 `@State`
+- 不要把格式化后的普通值跨一层或多层 `@Builder` 继续传递
+- 如果一定要拆 `@Builder`，让 Builder 内部自己读取 `this.selectedMode`、`this.rounds`、`this.focusSec` 等响应式状态，而不是只接收最终字符串
+
+排查顺序：
+1. 先确认 `@State` 本身是否真的更新了。
+2. 再看异常区域是不是把格式化后的普通参数传给了 `@Builder`。
+3. 如果下面区域正常、顶部摘要异常，优先怀疑“局部 Builder 参数透传导致刷新链路失效或不稳定”。
+4. 优先改成“异常区域直接读取页面状态”的写法，再看问题是否消失。
+
+### 6.3.2 ForEach 列表项与 `@Prop`：仅用 stable id 时子项不刷新
+
+典型现象：
+
+- 父组件里 `loadData()` / `loadDetail()` 已从 repository 赋了新数组，`@State` 里数据已更新（甚至日志里能看到 `id:status` 已是新值）
+- 列表中的卡片（如传入 `@Prop task: SomeInterface` 的子组件）**仍显示旧状态、旧样式**
+
+原因简述：
+
+- `ForEach` 的 key 若**只取业务主键**（例如 `(item) => item.id`），同一 `id` 下列表项可能被 **复用** 而非整项重建
+- 子组件用 `@Prop` 接收**整条 interface 对象**时，在复用路径下可能出现 **`@Prop` 未随父级传入的新对象完整驱动重绘** 的情况（与 6.3.1 同属「刷新链路」类问题）
+
+推荐做法：
+
+- **key 中附带会随每次保存/更新变化的字段**，例如仓库在 `save` 时会更新 `updatedAt`：
+
+```ts
+(item: WeeklyTask) => `${item.id}-${item.updatedAt}`
+```
+
+  这样数据变更后 key 变化，对应列表项会按预期重建，与 repository 一致
+- 若模型**没有** `updatedAt`，可把**会影响列表展示**的字段拼进 key（例如关键结果：`id`、标题、类型、初始/目标/当前值、`unit`、`done`、`sortOrder` 等），原则仍是「数据变更则 key 变」
+- 列表项展示的文案来自**关联实体**（例如周任务卡片上的目标标题来自 `Goal`）时，仅拼任务自身的 `id`/`updatedAt` 不够：关联目标改名后任务行未变，ForEach 仍可能复用子项；应在 key 中并入**关联对象的变更戳**（如 `goal.updatedAt`）
+- 若业务上必须深度跟踪对象内字段，再考虑 `@Observed` / `@ObjectLink` 等方案（成本更高，按需选用）
+
+排查顺序：
+
+1. 先确认父级统一加载入口里 `@State` 是否已是新数据  
+2. 若数据对、列表仍错，检查 `ForEach` 的 key 是否**仅为 `id`**  
+3. 优先尝试 **`id` + `updatedAt`**（或任意「展示变更时一定会变」的字段组合）
+
+### 6.4 异步刷新防覆盖
+
+如果同一页面会在多个入口触发异步加载，例如：
+- `aboutToAppear`
+- `onPageShow`
+- `@Watch`
+- `onVisibleAreaChange`
+
+必须防止旧请求覆盖新请求。
+
+推荐模式：
+
+```ts
+private reloadToken: number = 0;
+
+private async loadOverview(): Promise<void> {
+  const token: number = ++this.reloadToken;
+  const repo = await this.ensureRepo();
+  const summary = await repo.queryDayStat(new Date());
+  if (token !== this.reloadToken) {
+    return;
+  }
+  this.focusSec = summary.focusSec;
+}
+```
+
+规则：
+- 只接受最后一次异步加载结果
+- 不要让旧请求在晚返回时把页面覆盖回旧值
+
+### 6.5 同步信号与展示数据分层
+
+`stats_data_version` 这类字段适合作为“刷新信号”，不适合作为“展示值”本身。
+
+正确分层：
+- `@StorageLink('stats_data_version')`：只负责通知“数据变了”
+- `loadOverview()`：收到通知后重新查询
+- `@State focusSec / tomatoCount ...`：承接查询结果并驱动渲染
+
+不要把“信号变化”“查数据”“渲染格式化”混在一个表达式里。
+
+### 6.6 仓库初始化要统一
+
+页面里所有 repository 调用都要先经过统一的 `ensureRepo()`，不要有的地方 `init()`，有的地方直接 `instance()` 后立刻查询或写入。
+
+推荐模式：
+
+```ts
+private async ensureRepo(): Promise<DataRepository> {
+  const repo: DataRepository = DataRepository.instance();
+  if (!repo.isReady()) {
+    const ctx = this.getUIContext().getHostContext() as common.UIAbilityContext;
+    await repo.init(ctx);
+  }
+  return repo;
+}
+```
+
+这样可以保证：
+- 首次进入页面时不会查到未初始化仓库
+- 页面刷新和事件写入使用同一套仓库准备逻辑
+
+### 6.7 实现完成后的自检清单
+
+做完一个“展示统计 / 展示详情 / 展示同步结果”页面后，至少自检这几项：
+
+1. 页面是否只有一个统一的数据加载入口。
+2. UI 是否直接依赖当前页面的 `@State`。
+3. 多入口异步加载是否有防旧请求覆盖的保护。
+4. repository 调用是否都经过统一的 `ensureRepo()`。
+5. 数据写入后，是否有明确的刷新信号通知展示页重新加载。
+
+### 6.8 最小日志规范
+
+为了在出现问题时能快速判断链路是否正确，建议保留最小可用日志思路：
+
+- 页面开始加载：`loadOverview start`
+- repository 查询结果：`queryDayStat result`
+- 页面状态应用：`applyOverview`
+
+这样一旦出现显示异常，可以快速判断：
+- 是数据没查到
+- 是状态没赋值
+- 还是 UI 没正确绑定状态
+
+## 7. 页面布局规范
+
+页面内容应该使用 `Column` 进行包裹，由根 `Column` 统一进行左右边距控制，而不是在 `Column` 内部子模块各自进行左右边距控制。
+
+```ts
+build() {
+  Column() {
+    Text('Hello')
+
+    Column() {}
+    .margin({ top: 16 })
+
+    Column() {}
+    .margin({ top: 16 })
+  }
+  .padding({ left: 16, right: 16 })
+}
+```

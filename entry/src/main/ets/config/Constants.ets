@@ -1,0 +1,1 @@
+export const NAVIGATION_TITLE_BAR_HEIGHT = 56;
