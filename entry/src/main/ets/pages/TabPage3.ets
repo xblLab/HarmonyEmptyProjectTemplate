@@ -2,6 +2,7 @@ import { HdsNavDestination, HdsNavDestinationAttribute, ScrollEffectType } from 
 import { LengthMetrics } from '@kit.ArkUI';
 import { NAVIGATION_TITLE_BAR_HEIGHT } from '../config/Constants';
 import { SampleTask, SampleTaskRepository } from '../model/SampleTaskRepository';
+import { formatDateTimeMs } from '../utils/formatDateTime';
 import { SampleTaskEditParams } from './secondary/SampleTaskEditPage';
 
 @Component
@@ -58,16 +59,16 @@ export struct TabPage3 {
   @Builder
   private buildContentView() {
     Column({ space: 16 }) {
-      Text('列表刷新示例')
-        .fontSize(28)
-        .fontWeight(FontWeight.Bold)
-        .fontColor($r('sys.color.font_primary'))
-        .width('100%')
-
       Text('列表项 key 使用 id 与 updatedAt 组合。数据变化后列表项会重建，避免只用 stable id 导致局部显示停留在旧状态。')
         .fontSize(16)
         .fontColor($r('sys.color.font_secondary'))
         .lineHeight(24)
+        .width('100%')
+
+      Text('二级页示例遵循第 10.1 节：保存/删除后自动 pop 回列表；表单字段带标签与 placeholder；截止时间用系统日期时间弹窗（第 9 节），不用文本框输入。')
+        .fontSize(14)
+        .fontColor($r('sys.color.font_tertiary'))
+        .lineHeight(20)
         .width('100%')
 
       Text(`同步版本 ${this.taskVersion}。Tab1 写入、新增页保存、编辑页保存、列表内切换完成状态都会更新这个版本。`)
@@ -93,9 +94,12 @@ export struct TabPage3 {
               .fontSize(17)
               .fontWeight(FontWeight.Medium)
               .fontColor($r('sys.color.font_primary'))
-            Text(`${task.owner} / updatedAt ${task.updatedAt}`)
+            Text(`${task.owner} · 截止 ${formatDateTimeMs(task.dueAt)}`)
               .fontSize(13)
               .fontColor($r('sys.color.font_secondary'))
+            Text(`updatedAt ${task.updatedAt}`)
+              .fontSize(12)
+              .fontColor($r('sys.color.font_tertiary'))
           }
           .layoutWeight(1)
           .alignItems(HorizontalAlign.Start)
@@ -149,7 +153,7 @@ export struct TabPage3 {
       },
       content: {
         title: {
-          mainTitle: '列表'
+          mainTitle: '规范'
         }
       }
     })

@@ -22,12 +22,6 @@ export struct TabPage1 {
   @Builder
   private buildContentView() {
     Column({ space: 16 }) {
-      Text('开发规范示例')
-        .fontSize(28)
-        .fontWeight(FontWeight.Bold)
-        .fontColor($r('sys.color.font_primary'))
-        .width('100%')
-
       Text('这些页面展示模板推荐的页面结构、系统图标、滚动配置、状态加载与列表刷新写法。')
         .fontSize(16)
         .fontColor($r('sys.color.font_secondary'))

@@ -32,12 +32,6 @@ export struct TabPage4 {
   @Builder
   private buildContentView() {
     Column({ space: 16 }) {
-      Text('布局与适配示例')
-        .fontSize(28)
-        .fontWeight(FontWeight.Bold)
-        .fontColor($r('sys.color.font_primary'))
-        .width('100%')
-
       Text('当前页面的左右边距只在根 Column 设置；页面背景、卡片背景和文字颜色都使用系统语义色。')
         .fontSize(16)
         .fontColor($r('sys.color.font_secondary'))
@@ -99,7 +93,7 @@ export struct TabPage4 {
       },
       content: {
         title: {
-          mainTitle: '布局'
+          mainTitle: '规范'
         }
       }
     })

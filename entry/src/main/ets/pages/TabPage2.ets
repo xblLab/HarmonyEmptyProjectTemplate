@@ -82,12 +82,6 @@ export struct TabPage2 {
   @Builder
   private buildContentView() {
     Column({ space: 16 }) {
-      Text('状态同步示例')
-        .fontSize(28)
-        .fontWeight(FontWeight.Bold)
-        .fontColor($r('sys.color.font_primary'))
-        .width('100%')
-
       Text('页面只维护展示所需的 @State，刷新信号使用 @StorageLink，数据统一从 loadOverview 入口写入。')
         .fontSize(16)
         .fontColor($r('sys.color.font_secondary'))
@@ -195,7 +189,7 @@ export struct TabPage2 {
       },
       content: {
         title: {
-          mainTitle: '状态'
+          mainTitle: '规范'
         }
       }
     })
