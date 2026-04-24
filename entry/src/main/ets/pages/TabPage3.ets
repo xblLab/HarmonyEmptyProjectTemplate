@@ -1,6 +1,3 @@
-import { HdsNavDestination, HdsNavDestinationAttribute, ScrollEffectType } from '@kit.UIDesignKit';
-import { LengthMetrics } from '@kit.ArkUI';
-import { NAVIGATION_TITLE_BAR_HEIGHT } from '../config/Constants';
 import { SampleTask, SampleTaskRepository } from '../model/SampleTaskRepository';
 import { formatDateTimeMs } from '../utils/formatDateTime';
 import { SampleTaskEditParams } from './secondary/SampleTaskEditPage';
@@ -124,13 +121,13 @@ export struct TabPage3 {
         .backgroundColor($r('sys.color.background_primary'))
       }, (task: SampleTask) => `${task.id}-${task.updatedAt}-${task.done}`)
     }
-    .padding({ top: NAVIGATION_TITLE_BAR_HEIGHT, left: 16, right: 16, bottom: 24 })
+    .padding({ left: 16, right: 16, bottom: 24 })
     .width('100%')
     .alignItems(HorizontalAlign.Start)
   }
 
   build() {
-    HdsNavDestination() {
+    NavDestination() {
       Scroll(this.scroller) {
         this.buildContentView()
       }
@@ -141,22 +138,7 @@ export struct TabPage3 {
       .friction(0.8)
       .height('100%')
     }
-    .background($r('sys.color.background_secondary'))
-    .titleBar({
-      style: {
-        scrollEffectOpts: {
-          enableScrollEffect: true,
-          scrollEffectType: ScrollEffectType.COMMON_BLUR,
-          blurEffectiveStartOffset: LengthMetrics.vp(0),
-          blurEffectiveEndOffset: LengthMetrics.vp(20)
-        }
-      },
-      content: {
-        title: {
-          mainTitle: '规范'
-        }
-      }
-    })
-    .hideBackButton(true)
+    .backgroundColor($r('sys.color.background_secondary'))
+    .title('列表')
   }
 }

@@ -1,5 +1,3 @@
-import { HdsNavigation, HdsNavigationAttribute } from '@kit.UIDesignKit';
-
 import { TabPage1 } from './TabPage1';
 import { TabPage2 } from './TabPage2';
 import { TabPage3 } from './TabPage3';
@@ -49,7 +47,7 @@ struct Index {
   }
 
   build() {
-    HdsNavigation(this.pageInfos) {
+    Navigation(this.pageInfos) {
       Tabs({ barPosition: BarPosition.End }) {
         TabContent() {
           TabPage1()
