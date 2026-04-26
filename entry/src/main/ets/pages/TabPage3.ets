@@ -76,6 +76,8 @@ export struct TabPage3 {
 
       Button('进入新增页面')
         .width('100%')
+        .backgroundColor($r('app.color.app_theme'))
+        .fontColor($r('app.color.app_theme_on'))
         .onClick(() => {
           this.openEditPage(0);
         })
@@ -84,7 +86,7 @@ export struct TabPage3 {
         Row({ space: 12 }) {
           SymbolGlyph(task.done ? $r('sys.symbol.checkmark_circle_fill') : $r('sys.symbol.circle_grid_2x2'))
             .fontSize(28)
-            .fontColor([task.done ? $r('sys.color.brand') : $r('sys.color.font_tertiary')])
+            .fontColor([task.done ? $r('app.color.app_theme') : $r('sys.color.font_tertiary')])
 
           Column({ space: 5 }) {
             Text(task.title)
@@ -104,6 +106,8 @@ export struct TabPage3 {
           Button(task.done ? '撤销' : '完成')
             .fontSize(14)
             .height(36)
+            .backgroundColor($r('app.color.app_theme'))
+            .fontColor($r('app.color.app_theme_on'))
             .onClick(() => {
               void this.toggleTask(task.id);
             })
@@ -111,6 +115,8 @@ export struct TabPage3 {
           Button('编辑')
             .fontSize(14)
             .height(36)
+            .backgroundColor($r('app.color.app_theme'))
+            .fontColor($r('app.color.app_theme_on'))
             .onClick(() => {
               this.openEditPage(task.id);
             })

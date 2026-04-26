@@ -127,6 +127,8 @@ struct SampleTaskEditPage {
         Button('选择')
           .fontSize(14)
           .height(36)
+          .backgroundColor($r('app.color.app_theme'))
+          .fontColor($r('app.color.app_theme_on'))
           .onClick(() => {
             this.openDueDateTimePicker();
           })
@@ -138,6 +140,8 @@ struct SampleTaskEditPage {
 
       Button('保存并返回列表')
         .width('100%')
+        .backgroundColor($r('app.color.app_theme'))
+        .fontColor($r('app.color.app_theme_on'))
         .onClick(() => {
           void this.saveTask();
         })

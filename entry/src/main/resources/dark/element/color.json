@@ -1,8 +1,16 @@
 {
   "color": [
     {
+      "name": "app_theme",
+      "value": "#171717"
+    },
+    {
+      "name": "app_theme_on",
+      "value": "#FFFFFF"
+    },
+    {
       "name": "start_window_background",
-      "value": "#000000"
+      "value": "#171717"
     }
   ]
 }

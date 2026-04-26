@@ -28,7 +28,7 @@ export struct TabPage1 {
       Row({ space: 12 }) {
         SymbolGlyph($r('sys.symbol.checkmark_circle_fill'))
           .fontSize(26)
-          .fontColor([$r('sys.color.brand')])
+          .fontColor([$r('app.color.app_theme')])
 
         Column({ space: 4 }) {
           Text('Scroll 默认配置')
@@ -52,7 +52,7 @@ export struct TabPage1 {
       Row({ space: 12 }) {
         SymbolGlyph($r('sys.symbol.moon_circle_fill'))
           .fontSize(26)
-          .fontColor([$r('sys.color.brand')])
+          .fontColor([$r('app.color.app_theme')])
 
         Column({ space: 4 }) {
           Text('深色模式适配')
@@ -76,7 +76,7 @@ export struct TabPage1 {
       Row({ space: 12 }) {
         SymbolGlyph($r('sys.symbol.square_grid_2x2'))
           .fontSize(26)
-          .fontColor([$r('sys.color.brand')])
+          .fontColor([$r('app.color.app_theme')])
 
         Column({ space: 4 }) {
           Text('统一布局边距')
@@ -100,7 +100,7 @@ export struct TabPage1 {
       Row({ space: 12 }) {
         SymbolGlyph($r('sys.symbol.arrow_2_circlepath'))
           .fontSize(26)
-          .fontColor([$r('sys.color.brand')])
+          .fontColor([$r('app.color.app_theme')])
 
         Column({ space: 6 }) {
           Text('跨页面数据同步')
@@ -123,12 +123,16 @@ export struct TabPage1 {
 
       Button('Tab1 写入数据，同步到 Tab3')
         .width('100%')
+        .backgroundColor($r('app.color.app_theme'))
+        .fontColor($r('app.color.app_theme_on'))
         .onClick(() => {
           void this.appendCrossTabTask();
         })
 
       Button('示例详情页（带参数）')
         .width('100%')
+        .backgroundColor($r('app.color.app_theme'))
+        .fontColor($r('app.color.app_theme_on'))
         .onClick(() => {
           const param: SimpleDetailParams = {
             title: '路由参数示例',
@@ -139,6 +143,8 @@ export struct TabPage1 {
 
       Button('关于页')
         .width('100%')
+        .backgroundColor($r('app.color.app_theme'))
+        .fontColor($r('app.color.app_theme_on'))
         .onClick(() => {
           this.pageInfos.pushPath({ name: 'SimpleAboutPage' });
         })

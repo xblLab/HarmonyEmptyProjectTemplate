@@ -38,7 +38,7 @@ export struct TabPage4 {
         Row({ space: 12 }) {
           SymbolGlyph(rule.symbol)
             .fontSize(28)
-            .fontColor([$r('sys.color.brand')])
+            .fontColor([$r('app.color.app_theme')])
 
           Column({ space: 5 }) {
             Text(rule.title)

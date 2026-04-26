@@ -126,7 +126,7 @@ export struct TabPage2 {
       Row({ space: 12 }) {
         SymbolGlyph($r('sys.symbol.arrow_2_circlepath'))
           .fontSize(28)
-          .fontColor([$r('sys.color.brand')])
+          .fontColor([$r('app.color.app_theme')])
 
         Column({ space: 6 }) {
           Text('统一加载入口')
@@ -152,6 +152,8 @@ export struct TabPage2 {
 
       Button('发送刷新信号')
         .width('100%')
+        .backgroundColor($r('app.color.app_theme'))
+        .fontColor($r('app.color.app_theme_on'))
         .onClick(() => {
           this.dataVersion += 1;
         })

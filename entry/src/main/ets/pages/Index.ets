@@ -16,7 +16,7 @@ struct Index {
       SymbolGlyph(symbol)
         .fontSize(24)
         .fontColor([
-          this.currentTabIndex === targetIndex ? $r('sys.color.font_primary') : $r('sys.color.font_tertiary')
+          this.currentTabIndex === targetIndex ? $r('app.color.app_theme') : $r('sys.color.font_tertiary')
         ])
         .scale({
           x: this.currentTabIndex === targetIndex ? 1.08 : 1.0,
@@ -32,7 +32,7 @@ struct Index {
       Text(title)
         .fontSize(this.currentTabIndex === targetIndex ? 16 : 14)
         .fontWeight(FontWeight.Medium)
-        .fontColor(this.currentTabIndex === targetIndex ? $r('sys.color.font_primary') :
+        .fontColor(this.currentTabIndex === targetIndex ? $r('app.color.app_theme') :
           $r('sys.color.font_tertiary'))
         .animation({
           duration: 200,
