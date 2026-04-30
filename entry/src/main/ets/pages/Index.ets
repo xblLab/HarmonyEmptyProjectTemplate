@@ -1,52 +1,89 @@
-import { common } from '@kit.AbilityKit';
-import { display, window } from '@kit.ArkUI';
-
-function pxToVp(px: number): number {
-  const d = display.getDefaultDisplaySync();
-  return px * 160 / d.densityDPI;
-}
+import { TabPage1 } from './TabPage1';
+import { TabPage2 } from './TabPage2';
+import { TabPage3 } from './TabPage3';
+import { TabPage4 } from './TabPage4';
 
 @Entry
 @Component
 struct Index {
-  @State message: string = 'Hello World';
-  @State padTop: number = 0;
-  @State padBottom: number = 0;
+  @Provide pageInfos: NavPathStack = new NavPathStack();
 
-  aboutToAppear(): void {
-    this.refreshSystemAvoidPadding();
-  }
+  @State currentTabIndex: number = 0;
 
-  onPageShow(): void {
-    this.refreshSystemAvoidPadding();
-  }
+  @Builder
+  tabBuilder(title: string, targetIndex: number, symbol: Resource) {
+    Column({ space: 4 }) {
+      SymbolGlyph(symbol)
+        .fontSize(24)
+        .fontColor([
+          this.currentTabIndex === targetIndex ? $r('app.color.app_theme') : $r('sys.color.font_tertiary')
+        ])
+        .scale({
+          x: this.currentTabIndex === targetIndex ? 1.08 : 1.0,
+          y: this.currentTabIndex === targetIndex ? 1.08 : 1.0
+        })
+        .animation({
+          duration: 200,
+          curve: Curve.FastOutSlowIn,
+          iterations: 1,
+          playMode: PlayMode.Normal
+        })
 
-  private refreshSystemAvoidPadding(): void {
-    const ctx = this.getUIContext().getHostContext() as common.UIAbilityContext;
-    window.getLastWindow(ctx).then((win: window.Window) => {
-      const avoid = win.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-      this.padTop = pxToVp(avoid.topRect.height);
-      this.padBottom = pxToVp(avoid.bottomRect.height);
-    });
+      Text(title)
+        .fontSize(this.currentTabIndex === targetIndex ? 16 : 14)
+        .fontWeight(FontWeight.Medium)
+        .fontColor(this.currentTabIndex === targetIndex ? $r('app.color.app_theme') :
+          $r('sys.color.font_tertiary'))
+        .animation({
+          duration: 200,
+          curve: Curve.FastOutSlowIn,
+          iterations: 1,
+          playMode: PlayMode.Normal
+        })
+    }
+    .width('100%')
+    .height('100%')
+    .justifyContent(FlexAlign.Center)
   }
 
   build() {
-    RelativeContainer() {
-      Text(this.message)
-        .id('HelloWorld')
-        .fontSize($r('app.float.page_text_font_size'))
-        .fontWeight(FontWeight.Bold)
-        .alignRules({
-          center: { anchor: '__container__', align: VerticalAlign.Center },
-          middle: { anchor: '__container__', align: HorizontalAlign.Center }
-        })
-        .onClick(() => {
-          this.message = 'Welcome';
-        })
+    Navigation(this.pageInfos) {
+      Tabs({ barPosition: BarPosition.End }) {
+        TabContent() {
+          TabPage1()
+        }
+        .tabBar(this.tabBuilder('规范', 0, $r('sys.symbol.square_grid_2x2')))
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+
+        TabContent() {
+          TabPage2()
+        }
+        .tabBar(this.tabBuilder('状态', 1, $r('sys.symbol.arrow_2_circlepath')))
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+
+        TabContent() {
+          TabPage3()
+        }
+        .tabBar(this.tabBuilder('列表', 2, $r('sys.symbol.star_badge_list')))
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+
+        TabContent() {
+          TabPage4()
+        }
+        .tabBar(this.tabBuilder('布局', 3, $r('sys.symbol.doc_plaintext_fill_1')))
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+      }
+      .width('100%')
+      .height('100%')
+      .barMode(BarMode.Fixed)
+      .onTabBarClick((index: number) => {
+        this.currentTabIndex = index;
+      })
+      .onChange((index: number) => {
+        this.currentTabIndex = index;
+      })
+      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
     }
-    .height('100%')
-    .width('100%')
-    .backgroundColor(Color.Orange)
-    .padding({ top: this.padTop, bottom: this.padBottom })
+    .hideTitleBar(true)
   }
 }

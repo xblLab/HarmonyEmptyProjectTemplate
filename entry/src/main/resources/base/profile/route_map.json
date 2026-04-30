@@ -1,0 +1,19 @@
+{
+  "routerMap": [
+    {
+      "name": "SimpleDetailPage",
+      "pageSourceFile": "src/main/ets/pages/secondary/SimpleDetailPage.ets",
+      "buildFunction": "SimpleDetailPageBuilder"
+    },
+    {
+      "name": "SimpleAboutPage",
+      "pageSourceFile": "src/main/ets/pages/secondary/SimpleAboutPage.ets",
+      "buildFunction": "SimpleAboutPageBuilder"
+    },
+    {
+      "name": "SampleTaskEditPage",
+      "pageSourceFile": "src/main/ets/pages/secondary/SampleTaskEditPage.ets",
+      "buildFunction": "SampleTaskEditPageBuilder"
+    }
+  ]
+}

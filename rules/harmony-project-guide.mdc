@@ -1,7 +1,0 @@
----
-alwaysApply: true
----
-
-1. 如果需要图标，优先使用 `symbolname.cursorrules` 文件中的 icon，而不是 emoji，除非用户明确要求使用 emoji
-2. 实现任何 UI，都需要考虑深色模式适配
-3. Scroll 默认要开启回弹效果，align 模式默认为 topStart，隐藏 scroll bar
